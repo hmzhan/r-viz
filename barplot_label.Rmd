@@ -1,0 +1,109 @@
+---
+title: "barplot_label"
+author: ""
+date: "12/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Data Preparation with the tidyverse
+
+```{r, echo=FALSE}
+library(tidyverse)
+library(forcats)
+library(stringr)
+library(dplyr)
+
+mpg_sum <- mpg %>%
+  filter(year == 2008) %>%
+  mutate(
+    manufacturer = str_to_title(manufacturer),
+    manufacturer = fct_lump(manufacturer, "Other", n = 10)
+  ) %>%
+  count(manufacturer, sort = TRUE) %>%
+  mutate(
+    manufacturer = fct_rev(fct_inorder(manufacturer)),
+    manufacturer = fct_relevel(manufacturer, "Other", after = 0)
+  )
+print(mpg_sum)
+```
+
+```{r, echo=TRUE}
+levels(mpg_sum$manufacturer)
+```
+
+
+### Data Visualization with ggplot2
+
+A very basic barplot for manufacturers
+
+```{r pressure, echo=TRUE}
+ggplot(mpg_sum, aes(x=manufacturer, y=n)) +
+  geom_col(fill = 'gray70') +
+  coord_flip() +
+  theme_minimal()
+```
+
+Add percentage values to each manufacturer.
+
+```{r, echo=TRUE}
+mpg_sum <- mpg_sum %>%
+  dplyr::mutate(
+    perc = paste0(sprintf("%4.1f", n / sum(n) * 100), "%"),
+    perc = if_else(row_number() == 1, paste(perc, "of all car models"), perc)
+  )
+```
+
+```{r, echo=TRUE}
+ggplot(mpg_sum, aes(x=manufacturer, y=n)) +
+  geom_col(fill = "gray70") +
+  coord_flip() +
+  geom_text(aes(label = perc), hjust = 0, nudge_x = 0) +
+  theme_minimal()
+```
+
+```{r, echo=TRUE}
+pal <- c(
+  "gray85",
+  rep("gray70", length(mpg_sum$manufacturer) - 4), 
+  "coral2", "mediumpurple1", "goldenrod1"
+)
+
+ggplot(mpg_sum, aes(x = manufacturer, y = n, 
+                    fill = manufacturer)) +
+  geom_col() +
+  coord_flip() +
+  geom_text(aes(label = perc)) +
+  scale_fill_manual(values = pal, guide = "none") +
+  theme_minimal()
+```
+
+```{r, echo=TRUE}
+mpg_sum <-
+  mpg_sum %>% 
+  mutate(
+    color = case_when(
+      row_number() == 1 ~ "goldenrod1",
+      row_number() == 2 ~ "mediumpurple1",
+      row_number() == 3 ~ "coral2",
+      manufacturer == "Other" ~ "gray85",
+      ## all others should be gray
+      TRUE ~ "gray70"
+    )
+  )
+
+ggplot(mpg_sum, aes(x = manufacturer, y = n, fill = color)) +
+  geom_col() +
+  coord_flip() +
+  geom_text(aes(label = perc)) +
+  scale_fill_identity(guide = "none") +
+  theme_minimal()
+```
+
+
+
+
+
