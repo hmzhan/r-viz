@@ -1,0 +1,68 @@
+---
+title: "group_plots"
+author: "Haimao /zhan"
+date: "12/24/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Salaries data
+```{r, echo=TRUE}
+library(ggplot2)
+library(scales)
+data(Salaries, package="carData")
+
+ggplot(Salaries, aes(x = factor(rank, labels = c("Assistant\nProfessor", "Associate\nProfessor", "Full\nProfessor")), 
+                     y = salary, color = rank)) +
+  geom_boxplot(size=1,
+               outlier.shape = 1,
+               outlier.color = "black",
+               outlier.size = 3) +
+  geom_jitter(alpha=0.5,
+              width = 0.2) +
+  scale_y_continuous(label = dollar) +
+  labs(title = "Academic Salary by Rank", 
+       subtitle = "9-month salary for 2008-2009",
+       x = "",
+       y = "") +
+  theme_minimal() +
+  theme(legend.position = "none")
+  
+```
+
+## Life Expectancy data
+
+```{r, echo=TRUE}
+data(gapminder, package="gapminder")
+library(dplyr)
+plotdata <- gapminder %>%
+  filter(
+    continent == "Asia" & year == 2007
+  )
+
+ggplot(plotdata, aes(x = lifeExp, y = reorder(country, lifeExp))) + geom_point()
+```
+
+
+```{r, echo=TRUE}
+ggplot(plotdata, 
+       aes(x=lifeExp, 
+           y=reorder(country, lifeExp))) +
+  geom_point(color="blue", 
+             size = 2) +
+  geom_segment(aes(x = 40, 
+               xend = lifeExp, 
+               y = reorder(country, lifeExp), 
+               yend = reorder(country, lifeExp)),
+               color = "lightgrey") +
+  labs (x = "Life Expectancy (years)",
+        y = "",
+        title = "Life Expectancy by Country",
+        subtitle = "GapMinder data for Asia - 2007") +
+  theme_minimal() + 
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+```
