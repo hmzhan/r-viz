@@ -33,6 +33,24 @@ ggplot(Salaries, aes(x = factor(rank, labels = c("Assistant\nProfessor", "Associ
   
 ```
 
+
+## Salary data: gender + rank
+```{r, echo=TRUE}
+ggplot(Salaries, aes(x=yrs.since.phd, y=salary, color=rank, shape=sex)) +
+  geom_point(size=2, alpha=0.6) +
+  labs(title="Academic salary by rank, sex, and years since degree")
+```
+
+
+```{r, echo=TRUE}
+ggplot(Salaries, aes(x=salary)) +
+  geom_histogram(fill='cornflowerblue', color='white') +
+  facet_wrap(~rank, ncol=1) +
+  labs(title = 'Salary histograms by rank')
+```
+
+
+
 ## Life Expectancy data
 
 ```{r, echo=TRUE}
@@ -66,3 +84,5 @@ ggplot(plotdata,
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank())
 ```
+
+
